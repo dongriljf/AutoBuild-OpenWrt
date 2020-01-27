@@ -71,20 +71,21 @@ jobs:
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
         
-    - name: Download package
+    - name: 下载DL package
       working-directory: ./openwrt
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-    - name: Build firmware
+    - name: 编译Lienol_openwrt19.07Newifi_D2
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
-        mkdir bin
-        make -j$(nproc) V=s 2>&1 | tee ./bin/makebuild.log | grep -i error
+        mkdir -p bin/targets
+        make -j$(nproc) V=s 2>&1 | tee ./bin/targets/makebuild.log | grep -i error
+        find ./bin/targets/ -type d -name "packages" | xargs rm -rf {}
     - name : Upload artifact
       uses: actions/upload-artifact@master
       with:
         name: Lienol_Newifi_D2
-        path: openwrt/bin
+        path: openwrt/bin/targets

@@ -11,7 +11,7 @@ on:
   #    - master
 
   schedule:
-    - cron: 0 2/6 * * *
+    - cron: 0 2/3 * * *
   
   watch:
     types: [started]
@@ -73,7 +73,7 @@ jobs:
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
         
-    - name: Download package
+    - name: 下载DL文件
       working-directory: ./openwrt
       run: |
         make download -j$(nproc)
@@ -84,10 +84,11 @@ jobs:
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
-        mkdir bin
-        make -j$(nproc) V=s 2>&1 | tee ./bin/makebuild.log | grep -i error
-    - name : Upload artifact
+        mkdir -p bin/targets
+        make -j$(nproc) V=s 2>&1 | tee ./bin/targets/makebuild.log | grep -i error
+        find ./bin/targets/ -type d -name "packages" | xargs rm -rf {}
+    - name : 上传编译结果
       uses: actions/upload-artifact@master
       with:
         name: Lienol_openwrt1907_x86_64
-        path: openwrt/bin
+        path: openwrt/bin/targets

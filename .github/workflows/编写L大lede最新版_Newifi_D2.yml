@@ -70,20 +70,21 @@ jobs:
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
         
-    - name: Download package
+    - name: 下载DL package
       working-directory: ./openwrt
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-    - name: Build firmware
+    - name: 编写L大lede最新版_Newifi_D2 firmware
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
-        mkdir bin
-        make -j$(nproc) V=s 2>&1 | tee ./bin/makebuild.log | grep -i error
-    - name : Upload artifact
+        mkdir -p bin/targets
+        make -j$(nproc) V=s 2>&1 | tee ./bin/targets/makebuild.log | grep -i error
+        find ./bin/targets/ -type d -name "packages" | xargs rm -rf {}
+    - name : 上传压缩包
       uses: actions/upload-artifact@master
       with:
         name: L大lede最新版_Newifi_D2
-        path: openwrt/bin
+        path: openwrt/bin/targets
